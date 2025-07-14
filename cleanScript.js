@@ -121,3 +121,81 @@ const boardGame = (() => {
 		getBlockCoordinates,
 	};
 })();
+
+const domController = (() => {
+	const DomElements = {
+		gameBoard: document.querySelector('.game-board'),
+		boardBlocks: document.querySelectorAll('.board-block'),
+		toggledElements: document.querySelectorAll('.game-off'),
+		startButton: document.querySelector('#start-round'),
+		refreshButton: document.querySelector('#refresh-round'),
+		firstPlayer: document.querySelector('#player1'),
+		secPlayer: document.querySelector('#player2'),
+		score: document.querySelector('.score'),
+	};
+
+	DomElements.startButton.addEventListener('click', () => toggleGameAccess());
+	DomElements.refreshButton.addEventListener('click', () => {
+		boardGame.resetboard();
+		updateBoardDisplay();
+		console.log(boardGame.getBoardMatrix());
+	});
+
+	function updateBlocksDisplay(boardMatrix, getBlockCoordinates) {
+		DomElements.boardBlocks.forEach((block, index) => {
+			const { row, column } = getBlockCoordinates(index);
+			block.textContent = `${boardMatrix[row][column]}`;
+		});
+	}
+
+	function updateBoardDisplay() {
+		updateBlocksDisplay(
+			boardGame.getBoardMatrix(),
+			boardGame.getBlockCoordinates
+		);
+	}
+
+	function handlePlayerClick(actionFunc) {
+		DomElements.boardBlocks.forEach((block, index) => {
+			block.addEventListener('click', () => {
+				actionFunc(index);
+			});
+		});
+	}
+
+	function updateScore(player1, player2) {
+		DomElements.score.textContent = `${player1.getScore()} / ${player2.getScore()}`;
+	}
+
+	function toggleGameAccess() {
+		DomElements.toggledElements.forEach((element) => {
+			element.classList.toggle('game-off');
+		});
+		DomElements.startButton.classList.toggle('game-off');
+	}
+
+	function setPlayersName(player1Name, player2Name) {
+		DomElements.firstPlayer.textContent = player1Name;
+		DomElements.secPlayer.textContent = player2Name;
+	}
+
+	function focusOnPlayer(currentPlayer) {
+		const symbol = currentPlayer.getSymbol();
+		if (symbol === 'X') {
+			DomElements.secPlayer.classList.remove('scale-up');
+			DomElements.firstPlayer.classList.add('scale-up');
+			return;
+		}
+		DomElements.firstPlayer.classList.remove('scale-up');
+		DomElements.secPlayer.classList.add('scale-up');
+	}
+
+	return {
+		handlePlayerClick,
+		updateScore,
+		toggleGameAccess,
+		setPlayersName,
+		updateBoardDisplay,
+		focusOnPlayer,
+	};
+})();
