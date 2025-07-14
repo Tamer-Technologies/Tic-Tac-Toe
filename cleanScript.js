@@ -199,3 +199,51 @@ const domController = (() => {
 		focusOnPlayer,
 	};
 })();
+
+const ticTacToeGame = (() => {
+	const player1 = Player.createPlayer(prompt('Player 1 Name'), 'X');
+	const player2 = Player.createPlayer(prompt('Player 2 Name'), 'O');
+
+	domController.setPlayersName(player1.getName(), player2.getName());
+
+	let playerTurn = Player.getFirstPlayer(player1, player2);
+
+	domController.focusOnPlayer(playerTurn);
+
+	function alertResult(result) {
+		if (result === 'Draw') {
+			alert(`${result}`);
+			return;
+		}
+
+		alert(
+			`${
+				result === player1.getSymbol() ? player1.getName() : player2.getName()
+			} wins`
+		);
+	}
+
+	function handleEndRound() {
+		const roundResult = boardGame.getRoundResult();
+		if (roundResult) {
+			domController.toggleGameAccess();
+			playerTurn.incrementScore();
+			boardGame.resetboard();
+			domController.updateBoardDisplay();
+			domController.updateScore(player1, player2);
+			alertResult(roundResult);
+		}
+	}
+
+	function blockClickAction(index) {
+		boardGame.updateMatrix(index, playerTurn.getSymbol());
+		domController.updateBoardDisplay();
+		setTimeout(() => {
+			handleEndRound();
+		}, 0);
+		playerTurn = Player.getNextPlayer(playerTurn, player1, player2);
+		domController.focusOnPlayer(playerTurn);
+	}
+
+	domController.handlePlayerClick(blockClickAction);
+})();
